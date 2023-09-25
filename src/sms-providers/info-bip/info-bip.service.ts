@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import axios from "axios";
-import { ResponseType } from "../../sms/sms.service";
+import { ProviderServiceType, ResponseType } from "../../sms/sms.service";
+import { PinDto } from "../../otp/otp.dto";
 
 @Injectable()
 export class InfoBipService {
@@ -12,25 +13,55 @@ export class InfoBipService {
   // create message template
   async createMessageTemplate() {}
 
-  async sendOTPSMS(parameter, destinationNumber, message) {
+  async sendOTPSMS(urlParameter, destinationNumber, message) {
     this.validateNotEmpty(destinationNumber, "destinationNumber");
     this.validateNotEmpty(message, "message");
 
-    const url = await this.buildUrl(parameter);
-    const requestBody = await this.buildRequestBody(destinationNumber, message);
+    const url = await this.buildUrl(urlParameter);
+    const requestBody = await this.buildSendOTPRequestBody(
+      destinationNumber,
+      message
+    );
     const axiosConfig = await this.buildAxiosConfig();
 
     return await axios
-      .post(url, requestBody, axiosConfig as any)
+      .post(url, requestBody, axiosConfig)
       .then((res) => this.parseSuccessResponse(res))
       .catch((err) => this.parseFailedResponse(err));
   }
 
-  private buildUrl(parameters: string) {
-    return (
-      `https://${this.configService.get<string>("INFOBIP_BASE_URL")}` +
-      `${parameters}`
+  async verifyOTP(pinDto: PinDto, urlParameter: string) {
+    this.validateNotEmpty(pinDto?.pinId, "pinId");
+    this.validateNotEmpty(pinDto?.pin, "pin");
+
+    const url = await this.buildUrl(
+      urlParameter,
+      ProviderServiceType.verifyOTP,
+      pinDto.pinId
     );
+    const requestBody = await this.buildVerifyRequestBody(pinDto.pin);
+    const axiosConfig = await this.buildAxiosConfig();
+
+    return await axios
+      .post(url, requestBody, axiosConfig)
+      .then((res) => this.parseSuccessResponse(res))
+      .catch((err) => this.parseFailedResponse(err));
+  }
+
+  private buildUrl(
+    urlParameter: string,
+    typeOfService?: string,
+    pinId?: string
+  ) {
+    let url =
+      `https://${this.configService.get<string>("INFOBIP_BASE_URL")}` +
+      `${urlParameter}`;
+
+    if (typeOfService === ProviderServiceType.verifyOTP && pinId) {
+      url += `${pinId}`;
+    }
+
+    return url;
   }
 
   private buildHeaders(apiKey) {
@@ -40,12 +71,18 @@ export class InfoBipService {
     };
   }
 
-  private async buildRequestBody(destinationNumber, message) {
+  private async buildSendOTPRequestBody(destinationNumber, message) {
     return {
       applicationId: this.configService.get<string>("INFOBIP_APPLICATION_ID"),
       messageId: this.configService.get<string>("INFOBIP_MESSAGE_ID"),
       from: "Hello Tiger",
       to: destinationNumber,
+    };
+  }
+
+  private async buildVerifyRequestBody(pin: string) {
+    return {
+      pin: pin,
     };
   }
 

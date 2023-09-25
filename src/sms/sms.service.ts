@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { OtpDto } from "../otp/otp.dto";
+import { OtpDto, PinDto } from "../otp/otp.dto";
 import { InfoBipService } from "../sms-providers/info-bip/info-bip.service";
 import { TwilioService } from "../sms-providers/twilio/twilio.service";
 
@@ -16,6 +16,12 @@ enum SmsProviderType {
   Twilio = "Twilio",
   InfoBip = "InfoBip",
 }
+
+export enum ProviderServiceType {
+  sendOTP = "sendOTP",
+  verifyOTP = "verifyOTP",
+}
+
 @Injectable()
 export class SmsService {
   private readonly prefferedProviders = new Map<string, string>();
@@ -60,8 +66,6 @@ export class SmsService {
         otpData.messageBody
       )) as ResponseType;
 
-      console.log("response", response);
-
       if (response.success) {
         return `SMS sent successfully using ${selectedProvider}: ${response.status} ${response.smsStatus}`;
       }
@@ -70,6 +74,10 @@ export class SmsService {
         `Failed to send SMS using ${selectedProvider} - ${error.message}`
       );
     }
+  }
+
+  async verifyOTP(pinDto: PinDto) {
+    return await this.infoBipService.verifyOTP(pinDto, "/2fa/2/pin");
   }
 
   private async verifyUserCountry(phoneNumber: string) {

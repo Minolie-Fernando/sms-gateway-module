@@ -5,3 +5,8 @@ export class OtpDto {
   messageBody: string;
   userDetails: UserDto;
 }
+
+export class PinDto {
+  pin: string;
+  pinId: string;
+}
