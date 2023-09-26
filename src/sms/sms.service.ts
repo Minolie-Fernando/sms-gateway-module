@@ -41,10 +41,10 @@ export class SmsService {
     );
 
     switch (countryCode) {
-      case "0094":
+      case "+94":
         countryCode = "LK";
         break;
-      case "0061":
+      case "+61":
         countryCode = "AU";
         break;
       default:
@@ -63,7 +63,6 @@ export class SmsService {
       const response = (await this.sendSmsUsingProvider(
         selectedProvider,
         otpData.userDetails.phoneNumber,
-        otpData.messageBody
       )) as ResponseType;
 
       if (response.success) {
@@ -80,19 +79,20 @@ export class SmsService {
     return await this.infoBipService.verifyOTP(pinDto, "/2fa/2/pin");
   }
 
-  private async verifyUserCountry(phoneNumber: string) {
-    return phoneNumber.substring(0, 4);
+  async verifyUserCountry(phoneNumber: string) {
+    return phoneNumber.substring(0, 2); //+94
   }
 
-  private async sendSmsUsingProvider(
+  async sendSmsUsingProvider(
     provider: string,
     phoneNumber: string,
-    message: string
+    message?: string
   ) {
+
     switch (provider) {
       case SmsProviderType.Twilio:
         try {
-          return await this.twilioService.sendOTP();
+          return await this.twilioService.sendOTPSMS(phoneNumber);
         } catch (error) {
           throw new Error(`Failed to send OTP using Twilio - ${error.message}`);
         }

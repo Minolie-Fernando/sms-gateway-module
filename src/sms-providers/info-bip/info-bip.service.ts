@@ -13,7 +13,7 @@ export class InfoBipService {
   // create message template
   async createMessageTemplate() {}
 
-  async sendOTPSMS(urlParameter, destinationNumber, message) {
+  async sendOTPSMS(urlParameter: string, destinationNumber: string, message: string) {
     this.validateNotEmpty(destinationNumber, "destinationNumber");
     this.validateNotEmpty(message, "message");
 
@@ -71,7 +71,7 @@ export class InfoBipService {
     };
   }
 
-  private async buildSendOTPRequestBody(destinationNumber, message) {
+  private async buildSendOTPRequestBody(destinationNumber: string, message:string) {
     return {
       applicationId: this.configService.get<string>("INFOBIP_APPLICATION_ID"),
       messageId: this.configService.get<string>("INFOBIP_MESSAGE_ID"),
@@ -112,7 +112,7 @@ export class InfoBipService {
     };
   }
 
-  private validateNotEmpty(value, fieldName) {
+  private validateNotEmpty(value: string, fieldName: string) {
     if (!value) {
       throw `${fieldName} parameter is mandatory`;
     }
