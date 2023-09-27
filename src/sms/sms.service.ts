@@ -35,7 +35,7 @@ export class SmsService {
     this.prefferedProviders.set("Other", "Twilio");
   }
 
-  async sendOTPSms(otpData: OtpDto) {
+  async sendSMS(otpData: OtpDto) {
     let countryCode = await this.verifyUserCountry(
       otpData.userDetails.phoneNumber
     );
@@ -63,10 +63,13 @@ export class SmsService {
       const response = (await this.sendSmsUsingProvider(
         selectedProvider,
         otpData.userDetails.phoneNumber,
+        otpData.messageBody
       )) as ResponseType;
 
       if (response.success) {
         return `SMS sent successfully using ${selectedProvider}: ${response.status} ${response.smsStatus}`;
+      } else {
+        return `SMS attempt unsuccessful ${selectedProvider}: ${response.status} ${response.errorDetails}`;
       }
     } catch (error) {
       throw new Error(
@@ -75,12 +78,8 @@ export class SmsService {
     }
   }
 
-  async verifyOTP(pinDto: PinDto) {
-    return await this.infoBipService.verifyOTP(pinDto, "/2fa/2/pin");
-  }
-
   async verifyUserCountry(phoneNumber: string) {
-    return phoneNumber.substring(0, 2); //+94
+    return phoneNumber.substring(0, 2);
   }
 
   async sendSmsUsingProvider(
@@ -88,17 +87,16 @@ export class SmsService {
     phoneNumber: string,
     message?: string
   ) {
-
     switch (provider) {
       case SmsProviderType.Twilio:
         try {
-          return await this.twilioService.sendOTPSMS(phoneNumber);
+          return await this.twilioService.sendSMS(phoneNumber, message);
         } catch (error) {
           throw new Error(`Failed to send OTP using Twilio - ${error.message}`);
         }
       case SmsProviderType.InfoBip:
         try {
-          return await this.infoBipService.sendOTPSMS(
+          return await this.infoBipService.sendSMS(
             "/2fa/2/pin",
             phoneNumber,
             message
@@ -110,4 +108,8 @@ export class SmsService {
         }
     }
   }
+
+  // async verifyOTP(pinDto: PinDto) {
+  //   return await this.infoBipService.verifyOTP(pinDto, "/2fa/2/pin");
+  // }
 }

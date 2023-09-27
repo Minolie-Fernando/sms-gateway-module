@@ -7,10 +7,10 @@ export class OtpService {
   constructor(private readonly smsService: SmsService) {}
 
   async sendOtp(otpData: OtpDto) {
-    return this.smsService.sendOTPSms(otpData);
+    return this.smsService.sendSMS(otpData);
   }
 
-  async verifyOtp(pinDto: PinDto) {
-    return this.smsService.verifyOTP(pinDto);
-  }
+  // async verifyOtp(pinDto: PinDto) {
+  //   return this.smsService.sendSMS(pinDto);
+  // }
 }

@@ -13,7 +13,7 @@ export class InfoBipService {
   // create message template
   async createMessageTemplate() {}
 
-  async sendOTPSMS(urlParameter: string, destinationNumber: string, message: string) {
+  async sendSMS(urlParameter: string, destinationNumber: string, message: string) {
     this.validateNotEmpty(destinationNumber, "destinationNumber");
     this.validateNotEmpty(message, "message");
 
@@ -30,23 +30,23 @@ export class InfoBipService {
       .catch((err) => this.parseFailedResponse(err));
   }
 
-  async verifyOTP(pinDto: PinDto, urlParameter: string) {
-    this.validateNotEmpty(pinDto?.pinId, "pinId");
-    this.validateNotEmpty(pinDto?.pin, "pin");
+  // async verifyOTP(pinDto: PinDto, urlParameter: string) {
+  //   this.validateNotEmpty(pinDto?.pinId, "pinId");
+  //   this.validateNotEmpty(pinDto?.pin, "pin");
 
-    const url = await this.buildUrl(
-      urlParameter,
-      ProviderServiceType.verifyOTP,
-      pinDto.pinId
-    );
-    const requestBody = await this.buildVerifyRequestBody(pinDto.pin);
-    const axiosConfig = await this.buildAxiosConfig();
+  //   const url = await this.buildUrl(
+  //     urlParameter,
+  //     ProviderServiceType.verifyOTP,
+  //     pinDto.pinId
+  //   );
+  //   const requestBody = await this.buildVerifyRequestBody(pinDto.pin);
+  //   const axiosConfig = await this.buildAxiosConfig();
 
-    return await axios
-      .post(url, requestBody, axiosConfig)
-      .then((res) => this.parseSuccessResponse(res))
-      .catch((err) => this.parseFailedResponse(err));
-  }
+  //   return await axios
+  //     .post(url, requestBody, axiosConfig)
+  //     .then((res) => this.parseSuccessResponse(res))
+  //     .catch((err) => this.parseFailedResponse(err));
+  // }
 
   private buildUrl(
     urlParameter: string,

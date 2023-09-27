@@ -6,13 +6,13 @@ import { OtpService } from "./otp.service";
 export class OTPController {
   constructor(private readonly otpService: OtpService) {}
 
-  @Post("send-otp")
+  @Post("send-sms")
   async sendOtp(@Body() otpDto: OtpDto) {
     return this.otpService.sendOtp(otpDto);
   }
 
-  @Post("verify-otp")
-  async verifyOtp(@Body() pinDto: PinDto) {
-    return this.otpService.verifyOtp(pinDto);
-  }
+  // @Post("verify-otp")
+  // async verifyOtp(@Body() pinDto: PinDto) {
+  //   return this.otpService.verifyOtp(pinDto);
+  // }
 }
